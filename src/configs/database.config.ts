@@ -36,10 +36,22 @@ export const getPostgresDatabaseConfig = (): DataSourceOptions => {
         logging,
         logger: 'advanced-console',
         entities: [
-            path.join(__dirname, isTsNode ? '../../**/*.entity.ts' : '../../**/*.entity.js'),
+            path.join(
+                __dirname,
+                isTsNode
+                    ? '../databases/postgres/entities/**/*.entity.ts'
+                    : '../databases/postgres/entities/**/*.entity.js',
+            ),
         ],
 
-        migrations: [path.join(__dirname, isTsNode ? 'migrations/*.ts' : 'migrations/*.js')],
+        migrations: [
+            path.join(
+                __dirname,
+                isTsNode
+                    ? '../databases/postgres/migrations/*.ts'
+                    : '../databases/postgres/migrations/*.js',
+            ),
+        ],
         migrationsTableName: 'typeorm_migrations',
         namingStrategy: new SnakeNamingStrategy(),
 
