@@ -1,12 +1,22 @@
-import { Query, Resolver } from '@nestjs/graphql'
+import { Args, ID, Mutation, Query, Resolver } from '@nestjs/graphql'
+import { UpdateUserRequestDto } from './dtos/requests'
+import { UserResponseDto } from './dtos/responses'
 import { ClientUserService } from './user.service'
 
-@Resolver()
+@Resolver(() => UserResponseDto)
 export class ClientUserResolver {
-    constructor(private readonly userService: ClientUserService) {}
+    constructor(private readonly _userService: ClientUserService) {}
 
-    @Query(() => String)
-    hello() {
-        return 'Hello, World!'
+    @Query(() => [UserResponseDto])
+    async getAllUsers(): Promise<UserResponseDto[]> {
+        return this._userService.findAll()
+    }
+
+    @Mutation(() => UserResponseDto)
+    async updateUser(
+        @Args('id', { type: () => ID }) id: string,
+        @Args('input') input: UpdateUserRequestDto,
+    ): Promise<UserResponseDto> {
+        return this._userService.update(id, input)
     }
 }

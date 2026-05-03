@@ -149,6 +149,14 @@ export const APP_ENV_LOCAL = 'local'
 - Direct repository access is **not allowed** in resolvers or controllers — use the feature service.
 - Config factory functions must not be called inline inside module files — pass them via `useFactory`.
 
+### TypeORM Entity Registration
+
+**Do NOT manually import or register each entity using `TypeOrmModule.forFeature([...])` if a global configuration already loads all entities** (e.g., via an entities folder pattern). The `PostgresDatasourceModule` automatically discovers and loads all `*.entity.ts` files from the `src/databases/postgres/entities/**` glob pattern.
+
+- Entities are automatically discovered and injected.
+- When creating a new entity, do not modify module imports — TypeORM will find it automatically.
+- Use `@InjectRepository(EntityClass)` in services to inject the repository; the entity itself does not need to be registered per-module.
+
 ## Step-by-Step: Create a New Feature Module
 
 Example: adding `tasks` to the `client` domain.
@@ -210,6 +218,37 @@ export class ClientTasksResolver {
         return 'ok'
     }
 }
+```
+
+### GraphQL Resolver Naming Rules
+
+All `@Query` and `@Mutation` method names must be **action-oriented** using a consistent verb prefix. Never use bare nouns.
+
+| Operation  | Verb prefix | Example                      |
+| ---------- | ----------- | ---------------------------- |
+| Fetch list | `getAll`    | `getAllUsers`, `getAllTasks` |
+| Fetch one  | `get`       | `getUser`, `getTask`         |
+| Create     | `create`    | `createUser`, `createTask`   |
+| Update     | `update`    | `updateUser`, `updateTask`   |
+| Delete     | `delete`    | `deleteUser`, `deleteTask`   |
+
+```typescript
+// ✓ Correct — action-oriented names
+@Query(() => [UserResponseDto])
+async getAllUsers(): Promise<UserResponseDto[]> { ... }
+
+@Query(() => UserResponseDto)
+async getUser(@Args('id', { type: () => ID }) id: string): Promise<UserResponseDto> { ... }
+
+@Mutation(() => UserResponseDto)
+async createUser(@Args('input') input: CreateUserRequestDto): Promise<UserResponseDto> { ... }
+
+// ✗ Not allowed — bare nouns with no action verb
+@Query(() => [UserResponseDto])
+async users(): Promise<UserResponseDto[]> { ... }
+
+@Query(() => UserResponseDto)
+async user(@Args('id') id: string): Promise<UserResponseDto> { ... }
 ```
 
 **5. If the feature needs a TypeORM entity:**
