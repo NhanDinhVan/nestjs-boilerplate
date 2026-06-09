@@ -23,4 +23,7 @@ export const config = {
         port: parseInt(process.env.REDIS_PORT || '6379', 10),
         password: process.env.REDIS_PASSWORD || '',
     },
+    jwt: {
+        saltRounds: parseInt(process.env.SALT_ROUNDS || '10', 10),
+    },
 }
