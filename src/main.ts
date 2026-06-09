@@ -1,3 +1,4 @@
+import { AppExceptionsFilter } from '@common/filters/app-exception.filter'
 import { logBootstrapInfo } from '@common/utils/bootstrap.util'
 import { ValidationPipe } from '@nestjs/common'
 import { NestFactory } from '@nestjs/core'
@@ -13,6 +14,8 @@ async function bootstrap() {
             transform: true,
         }),
     )
+
+    app.useGlobalFilters(new AppExceptionsFilter())
 
     // Configure body parser for batched GraphQL requests
     app.use(json({ limit: '20mb' }))

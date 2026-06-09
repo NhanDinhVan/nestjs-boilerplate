@@ -19,18 +19,10 @@ export const getGraphqlConfig = (includeModules?: any[]): ApolloDriverConfig => 
             ? [ApolloServerPluginLandingPageLocalDefault()]
             : undefined,
     formatError: (error: GraphQLFormattedError) => {
-        if (error.extensions?.exception) {
-            const ex = error.extensions.exception as any
-            return {
-                statusCode: ex?.status ?? 500,
-                message: ex?.message ?? error.message,
-                messageCode: ex?.messageCode ?? 'GRAPHQL_ERROR',
-            }
-        }
+        const { message, extensions } = error
         return {
-            statusCode: 500,
-            message: error.message,
-            messageCode: error.extensions?.code ?? 'INTERNAL_SERVER_ERROR',
+            message,
+            statusCode: extensions?.statusCode,
         }
     },
 })
